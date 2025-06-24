@@ -54,8 +54,8 @@ For desktop and mobile builds you'll need to configure the plugin with your Goog
    - Fill in the following settings:
      - `measurement_id`: Your GA4 measurement ID (format: "G-XXXXXXXXXX")
      - `api_secret`: Your GA4 API secret (from GA4 Admin → Data Streams → Choose your stream → Measurement Protocol API secrets)
-   - Repeat above step for your different environments (for example google_analytics/api_secret.release and google_analytics/measurement_id.release)
-  
+   - Repeat above step for your different environments (for example google_analytics/api_secret.release and google_analytics/measurement_id.release). See [Feature Tags -> Overriding Project Settings](https://docs.godotengine.org/en/stable/tutorials/export/feature_tags.html#overriding-project-settings) for details on how to do this.
+
 ## Usage
 
 ### Tracking Page Views
