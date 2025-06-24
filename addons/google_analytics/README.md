@@ -16,7 +16,7 @@ For HTML5/Web exports, you'll need to add the GA4 tracking code to your HTML tem
 
 In the snippet below we disable the default page view tracking that G4A does. If you want to allow G4A to handle page views normally then you can remove the `send_page_view` line.
 
-1. Add the GA4 tracking code to your HTML template:
+1. Add the GA4 tracking code to your HTML template (you can use Head include setting under HTML Options):
 
    ```html
    <!-- Google tag (gtag.js) -->
@@ -41,6 +41,8 @@ In the snippet below we disable the default page view tracking that G4A does. If
 2. Replace `G-XXXXXXXXXX` with your measurement ID
 3. The plugin will automatically use gtag.js when running in a web context
 
+Repeat the above steps for your different environments (debug, release, ...)
+
 #### Desktop/Mobile Builds
 
 For desktop and mobile builds you'll need to configure the plugin with your Google Analytics credentials.
@@ -52,6 +54,7 @@ For desktop and mobile builds you'll need to configure the plugin with your Goog
    - Fill in the following settings:
      - `measurement_id`: Your GA4 measurement ID (format: "G-XXXXXXXXXX")
      - `api_secret`: Your GA4 API secret (from GA4 Admin → Data Streams → Choose your stream → Measurement Protocol API secrets)
+   - Repeat above step for your different environments (for example google_analytics/api_secret.release and google_analytics/measurement_id.release). See [Feature Tags -> Overriding Project Settings](https://docs.godotengine.org/en/stable/tutorials/export/feature_tags.html#overriding-project-settings) for details on how to do this.
 
 ## Usage
 
@@ -104,6 +107,7 @@ Analytics.track_event("purchase", {
 - Automatic page context for all events
 - Support for GA4's recommended event names and parameters
 - Error handling and debug logging
+- Handles multiple environment
 
 ## Implementation Details
 

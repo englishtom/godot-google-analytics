@@ -4,8 +4,8 @@ var _client: GoogleAnalyticsClient = null
 const CLIENT_ID_FILE = "user://analytics_client_id.txt"
 
 func _ready() -> void:
-	var measurement_id = ProjectSettings.get_setting("google_analytics/measurement_id")
-	var api_secret = ProjectSettings.get_setting("google_analytics/api_secret")
+	var measurement_id = ProjectSettings.get_setting_with_override("google_analytics/measurement_id")
+	var api_secret = ProjectSettings.get_setting_with_override("google_analytics/api_secret")
 	var client_id = _get_or_create_client_id()
 	
 	if measurement_id == null or api_secret == null or measurement_id.is_empty() or api_secret.is_empty():
