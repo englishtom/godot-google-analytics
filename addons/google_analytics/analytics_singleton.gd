@@ -55,6 +55,8 @@ func track_page_view(page_title: String, page_location: String = "") -> void:
 		push_warning("[GA] Attempted to track page view '%s' but Google Analytics is not initialized." % page_title)
 
 func track_event(event_name: String, params: Dictionary = {}) -> void:
+	if OS.has_feature("debug"):
+		params["debug"] = true
 	if _client:
 		_client.send_event(event_name, params)
 	else:
