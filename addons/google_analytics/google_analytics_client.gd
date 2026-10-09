@@ -16,8 +16,13 @@ var _current_page_location: String = "app://game"
 
 var _last_event_time: float = 0.0
 const EVENT_COOLDOWN: float = 1.0 # Minimum seconds between any events
+# Gives up on a request after this many seconds (no network, app in the
+# background) so a stuck request can't block the queue forever
+const REQUEST_TIMEOUT: float = 10.0
 var _event_queue: Array[Dictionary] = []
 var _is_processing_queue: bool = false
+# HTTPRequest handles one request at a time: true until request_completed
+var _is_request_pending: bool = false
 
 func _init(measurement_id: String, api_secret: String, client_id: String) -> void:
 	_debug_log("Initializing client with measurement_id: %s" % measurement_id)
@@ -27,6 +32,7 @@ func _init(measurement_id: String, api_secret: String, client_id: String) -> voi
 	_session_id = str(Time.get_unix_time_from_system())
 	if not OS.has_feature("web"):
 		_http_request = HTTPRequest.new()
+		_http_request.timeout = REQUEST_TIMEOUT
 		add_child(_http_request)
 		_http_request.request_completed.connect(_on_request_completed)
 
@@ -93,6 +99,12 @@ func _process_queue() -> void:
 		if time_since_last_event < EVENT_COOLDOWN:
 			await get_tree().create_timer(EVENT_COOLDOWN - time_since_last_event).timeout
 		
+		# The cooldown alone doesn't guarantee the previous request finished
+		# (slow mobile network): sending now would fail with ERR_BUSY (44) and
+		# lose the event, so wait for it
+		if _is_request_pending:
+			await _http_request.request_completed
+
 		var event = _event_queue.pop_front()
 		_last_event_time = Time.get_unix_time_from_system()
 		_send_event(event.name, event.params)
@@ -150,9 +162,16 @@ func _send_event_server(event_name: String, params: Dictionary) -> void:
 	var error = _http_request.request(url, headers, HTTPClient.METHOD_POST, body)
 	if error != OK:
 		push_error("[GA] Failed to send request: %s" % error)
+	else:
+		_is_request_pending = true
 
 func _on_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+	_is_request_pending = false
 	_debug_log("Request completed with response code: %d" % response_code)
+	# No network or timeout: expected on players' devices, not worth an error
+	if result != HTTPRequest.RESULT_SUCCESS:
+		_debug_log("Request not completed (result %d), event dropped" % result)
+		return
 	if response_code != 204:
 		push_error("[GA] Request failed with code: %d" % response_code)
 		if body.size() > 0:
