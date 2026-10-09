@@ -12,6 +12,10 @@ func _ready() -> void:
 		push_warning("[GA] Google Analytics settings are not configured. Events will not be tracked.")
 		return
 		
+	# Keep sending while the SceneTree is paused (pause menus, loading screens):
+	# a paused HTTPRequest stops polling, so queued events would stall
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	_client = GoogleAnalyticsClient.new(measurement_id, api_secret, client_id)
 	add_child(_client)
 	
